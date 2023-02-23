@@ -20,7 +20,7 @@ builder.Services.AddDbContext<MvcUserDbContext>(
 
         });
 
-builder.Services.AddCors(options => options.AddPolicy(name: "mis2000labOrigins",
+builder.Services.AddCors(options => options.AddPolicy(name: "SamHu0310",
     policy =>
     {
         policy.WithOrigins("http://localhost:44450").AllowAnyMethod().AllowAnyHeader();

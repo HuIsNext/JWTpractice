@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TestAPI.jwtServices;
 using TestAPI.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace TestAPI.Controllers
 {
@@ -18,41 +20,46 @@ namespace TestAPI.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly MvcUserDbContext _db;
+        public ValuesController(MvcUserDbContext context)
+        {
+            _db = context;
+        }
+
         [AllowAnonymous]
         [HttpGet]
         public string Get()
         {
             return "你好陌生人";
         }
+
+
         [HttpPost]
         [AllowAnonymous]
         public IActionResult Post([FromBody] UserTable userA)
         {
-            string token = TokenService.CreateToken(userA);   
+            var ListOne = from user in _db.UserTables
+                          where user.UserMobilePhone == userA.UserMobilePhone
+                          select user;
+
+            UserTable ut = ListOne.FirstOrDefault();
+            string token = TokenService.CreateToken(userA);
             return Ok(new
-            {            
-                userA,
+            {
+                message="成功",
+                ut,
                 token
             });
 
         }
 
-        //[HttpPost]
-        //[AllowAnonymous]
-        //public IActionResult Post([FromBody] UserTable user)
-        //{
-        //    string token = TokenService.CreateToken(user);
-        //    return Ok(new
-        //        {
-        //        token
-        //         });
-
-        //}
-
-        [HttpGet("{id}")]
-        public string Get2(int id)
+        //[HttpGet("{id}")]
+        [HttpGet]
+        [Route("authenticated")]
+        [Authorize]
+        public string Get2()
         {
-            return string.Format("你好{0}", id.ToString());
+            return string.Format("你好 驗證成功");
         }
     }
 }
